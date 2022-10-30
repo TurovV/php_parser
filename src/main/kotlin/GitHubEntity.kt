@@ -1,23 +1,24 @@
 import org.kohsuke.github.*
+import java.io.BufferedReader
 
-class PHPParser(val repositoryName : String) {
+class GitHubEntity(val repositoryName : String) {
 
     val contentList : MutableList<GHContent>
     val rootRepository : GHRepository
     val github : GitHub
     init {
-        github  = GitHubBuilder().withPassword("TurovV", "iWDJSAC3swBC4w5").build()
+        github  = GitHubBuilder.fromEnvironment().build()
         rootRepository = github.getRepository(repositoryName)
         contentList = rootRepository.getDirectoryContent("")
         print("Here")
     }
 
-    fun getFiles() : MutableList<GHContent> {
+    fun getFiles() : List<String> {
         val filesList : MutableList<GHContent> = ArrayList()
         for (content in contentList) {
             filesList.addAll(getContent(content))
         }
-        return filesList
+        return filesList.map { element -> element.read().bufferedReader().use(BufferedReader::readText) }
     }
 
     private fun getContent(content : GHContent) : MutableList<GHContent> {
